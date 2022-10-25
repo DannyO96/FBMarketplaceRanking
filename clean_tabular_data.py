@@ -1,25 +1,22 @@
 import pandas as pd
-import unicodedata
 
 
 class CleanTabularData:
     '''
     '''
-    def __innit__(self):
-        self.product_df : pd.DataFrame
+    def __innit__(self, products_df:pd.DataFrame):
+        self.products_df = products_df
 
-    def clean_prices(price: str):
+    def clean_prices(self):
         """
         """
-        products_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
-        df1 = products_df["price"]
-        df1 = df1.str.replace('£','')
-        df1 = df1.str.replace(',','')
-        prods_df = df1.astype(float)
+        df1 = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
+        df2 = df1["price"]
+        df3 = df2.str.replace('£','')
+        df4 = df3.str.replace(',','')
+        products_df = df4.astype(float)
 
-
-
-        print(prods_df)
+        print(products_df)
 
 
 tabular = CleanTabularData()
