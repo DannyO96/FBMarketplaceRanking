@@ -10,14 +10,17 @@ class CleanTabularData:
     def clean_prices(self):
         """
         """
-        df1 = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
-        df2 = df1["price"]
-        df3 = df2.str.replace('£','')
-        df4 = df3.str.replace(',','')
-        products_df = df4.astype(float)
+        unclean_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
+        no_price_df = unclean_df.drop(columns=["price"])
+        price_only_df = unclean_df["price"]
+        df2 = price_only_df
+        df2 = df2.str.replace('£','')
+        df2 = df2.str.replace(',','')
+        df2 = df2.astype(float)
+        products_df = no_price_df.join(df2)
+        products_df = products_df.iloc[:,1:]
 
         print(products_df)
-
 
 tabular = CleanTabularData()
 tabular.clean_prices()
