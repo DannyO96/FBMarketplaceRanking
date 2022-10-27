@@ -1,14 +1,20 @@
 import pandas as pd
 
-
 class CleanTabularData:
     '''
+    Class to define the methods of the tabular data cleaning pipeline.
     '''
     def __innit__(self, products_df:pd.DataFrame):
         self.products_df = products_df
 
     def clean_prices(self):
         """
+        This is a function to remove the comma's and pound signs from the price collumn of the dataframe obtained from
+        the products.csv data.
+
+        Args: None
+
+        Returns: Cleaned dataframe of product prices
         """
         unclean_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
         no_price_df = unclean_df.drop(columns=["price"])
@@ -20,7 +26,7 @@ class CleanTabularData:
         products_df = no_price_df.join(df2)
         products_df = products_df.iloc[:,1:]
 
-        print(products_df)
+        return(products_df)
 
 tabular = CleanTabularData()
-tabular.clean_prices()
+clean_df = tabular.clean_prices()
