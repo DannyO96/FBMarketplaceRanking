@@ -1,5 +1,5 @@
 import pandas as pd
-from PIL import Image
+import PIL.Image
 
 class CleanImageData:
     """
@@ -28,7 +28,7 @@ class CleanImageData:
         Returns: image
         """
         path:str = "/home/danny/git/FBMarketplaceRanking/data/images/"
-        image = Image.open(f"{path}{image_id}.jpg")
+        image = PIL.Image.open(f"{path}{image_id}.jpg")
         return(image)
 
     def resize_image(self, final_size, image):
@@ -41,8 +41,8 @@ class CleanImageData:
         size = image.size
         ratio = float(final_size) / max(size)
         new_image_size = tuple([int(x*ratio) for x in size])
-        image = image.resize(new_image_size, Image.ANTIALIAS)
-        new_image = Image.new("RGB", (final_size, final_size))
+        image = image.resize(new_image_size, PIL.Image.Resampling.LANCZOS)
+        new_image = PIL.Image.new("RGB", (final_size, final_size))
         new_image.paste(image, ((final_size-new_image_size[0])//2, (final_size-new_image_size[1])//2))
         return(new_image)
 
@@ -51,17 +51,6 @@ resized_path:str ="/home/danny/git/FBMarketplaceRanking/data/resized_images/"
 img_id_list = image_cleaner.create_img_id_list()
 for img_id in img_id_list:
     image = image_cleaner.open_image(img_id)
-    resized_image:Image = image_cleaner.resize_image(512,image)
-    resized_image.Image.save(f'{img_id}_resized.jpg', resized_path)
-    break
-
-'''
-if __name__ == '__main__':
-    path = "images/"
-    dirs = os.listdir(path)
-    final_size = 512
-    for n, item in enumerate(dirs[:5], 1):
-        im = Image.open('images/' + item)
-        new_im = resize_image(final_size, im)
-        new_im.save(f'{n}_resized.jpg')
-'''
+    resized_image:PIL.Image.Image = image_cleaner.resize_image(512,image)
+    resized_image.save(f'{resized_path}{img_id}_resized.jpg')
+    
