@@ -3,34 +3,57 @@ import PIL
 from torch.utils.data import Dataset, DataLoader
 
 
-
-class CreatePTDataset(Dataset):
+class CreateImageDataset(Dataset):
     """
     This class inherits from torch.utils.data.Dataset
     
     """
-    def __innit__(self):
+    
+    def __init__(self):
         super().__init__()
-        self.data = pd.read_csv('/my.secrets.data/Products.csv')
+        self.image_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/Images.csv')
+        self.product_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/CleanProducts.csv', lineterminator='\n')
+        self.link_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/Links.csv')
+        self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
 
-    def __getitem__(self, index):
-        item = self.data.iloc[index]
-        id = item[2]
-        product_name = item[3]
-        category = item[4]
-        product_description = item[5]
-        price = item[6]
-        location = item[7]
-        url = item[8]
-        page_id = item[9]
-        create_time = item[10]
-        label = item[-1]
-        features = [id, product_name, product_description, category, price]
-        other_info = [location, url, page_id, create_time]
-        return {label, features, other_info}
+    def __getitem__(self, idx):
+        """
+        Overwrites the built in python __getitem__ function and defines what is done to the dataset when an index is referenced.
+        """
+        item = self.prods_imgs.iloc[idx]
+        label = item[1]
+        features = item[5]
+        return (features, label)
 
     def __len__(self):
-        return len(self.data)
+        """
+        Overwrites the built in python __len__ function and defines what is done to the dataset when the len funtion is called.
+        """
+        return len(self.prods_imgs)
+
+    def merge(self):
+        """
+        Funtion to merge the Images.csv and the Products.csv to a single dataframe which is then saved as prods_imgs.csv
+        """
+        prds_imgs = self.product_data.merge(self.image_data, left_on='id', right_on='product_id').rename(columns={'id_y': 'image_id'}).drop('id_x', axis=1)
+        prds_imgs.to_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv')
+        print(prds_imgs)
+
+    def get_category(self, idx):
+        """
+        Function to obtain the category of an index position in the pros_imgs.csv
+        """
+        item = self.prods_imgs.iloc[idx]
+        category = item[3]
+        return category
+
+dataset = CreateImageDataset()
+print(len(dataset))
+print(dataset[12601])
+print(dataset.get_category(1261))
+
+
+
 
 
 """

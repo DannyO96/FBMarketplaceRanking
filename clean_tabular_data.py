@@ -16,7 +16,7 @@ class CleanTabularData:
 
         Returns: Cleaned dataframe of product prices
         """
-        unclean_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Products.csv", lineterminator="\n")
+        unclean_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/my.secrets.data/Products.csv", lineterminator="\n")
         no_price_df = unclean_df.drop(columns=["price"])
         price_only_df = unclean_df["price"]
         df2 = price_only_df
@@ -30,3 +30,5 @@ class CleanTabularData:
 
 tabular = CleanTabularData()
 clean_df = tabular.clean_prices()
+print(clean_df)
+clean_df.to_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/CleanProducts.csv')
