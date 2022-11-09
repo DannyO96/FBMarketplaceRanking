@@ -21,8 +21,8 @@ class CreateImageDataset(Dataset):
         Overwrites the built in python __getitem__ function and defines what is done to the dataset when an index is referenced.
         """
         item = self.prods_imgs.iloc[idx]
-        label = item[1]
-        features = item[5]
+        label = self.get_category(idx)
+        features = item[4]
         return (features, label)
 
     def __len__(self):
@@ -42,15 +42,22 @@ class CreateImageDataset(Dataset):
     def get_category(self, idx):
         """
         Function to obtain the category of an index position in the pros_imgs.csv
+        Args: self
+            : index
+        Returns: Category -> str with / and , removed
         """
         item = self.prods_imgs.iloc[idx]
-        category = item[3]
+        cat = item[3]
+        cat1 = cat.replace('/','')
+        category = cat1.replace(',','')
         return category
+        
 
 dataset = CreateImageDataset()
 print(len(dataset))
-print(dataset[12601])
-print(dataset.get_category(1261))
+print(dataset[1061])
+print(dataset.get_category(1061))
+
 
 
 
