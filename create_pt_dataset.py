@@ -1,5 +1,6 @@
 import pandas as pd
 import PIL
+import torch
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -15,14 +16,22 @@ class CreateImageDataset(Dataset):
         self.product_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/CleanProducts.csv', lineterminator='\n')
         self.link_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/Links.csv')
         self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
+        self.labels = self.prods_imgs['category'].to_list()
+        self.num_classes = len(set(self.labels))
+        self.encoder = {y: x for (x, y) in enumerate(set(self.labels))}
+        self.decoder = {x: y for (x, y) in enumerate(set(self.labels))}
 
     def __getitem__(self, idx):
         """
         Overwrites the built in python __getitem__ function and defines what is done to the dataset when an index is referenced.
         """
+        label = self.labels[idx]
+        label = self.encoder[label]
+        label = torch.as_tensor(label)
         item = self.prods_imgs.iloc[idx]
-        label = self.get_category(idx)
         features = item[4]
+        #features = self.encoder[label]
+        #features = torch.as_tensor(features)
         return (features, label)
 
     def __len__(self):
@@ -39,7 +48,7 @@ class CreateImageDataset(Dataset):
         prds_imgs.to_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv')
         print(prds_imgs)
 
-    def get_category(self, idx):
+    def get_category_clean(self, idx):
         """
         Function to obtain the category of an index position in the pros_imgs.csv
         Args: self
@@ -55,13 +64,8 @@ class CreateImageDataset(Dataset):
 
 dataset = CreateImageDataset()
 print(len(dataset))
-print(dataset[1061])
-print(dataset.get_category(1061))
-
-
-
-
-
+#print(dataset[1061])
+print(dataset.__getitem__(1061))
 
 """
 code to use cuda later....
