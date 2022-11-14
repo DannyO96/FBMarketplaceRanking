@@ -5,7 +5,7 @@ class CleanImageData:
     """
     Class to define the methods of the image cleaning pipeline.
     """
-    def __innit__(self, image_df:pd.DataFrame, path:str = "/home/danny/git/FBMarketplaceRanking/data/images/", resized_path:str ="/home/danny/git/FBMarketplaceRanking/data/resized_images/"):
+    def __innit__(self, image_df:pd.DataFrame, path:str = "/home/danny/git/FBMarketplaceRanking/my.secrets.data/images/", resized_path:str ="/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/"):
         self.image_df = image_df
         self.path = path
         self.resized_path = resized_path
@@ -16,7 +16,7 @@ class CleanImageData:
         Args: self
         Returns: image_id_list
         """
-        images_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/data/Images.csv")
+        images_df = pd.read_csv("/home/danny/git/FBMarketplaceRanking/my.secrets.data/Images.csv")
         image_id_list = images_df["id"].to_list()
         return(image_id_list)
 
@@ -27,7 +27,7 @@ class CleanImageData:
             :image_id
         Returns: image
         """
-        path:str = "/home/danny/git/FBMarketplaceRanking/data/images/"
+        path:str = "/home/danny/git/FBMarketplaceRanking/my.secrets.data/images/"
         image = PIL.Image.open(f"{path}{image_id}.jpg")
         return(image)
 
@@ -47,7 +47,7 @@ class CleanImageData:
         return(new_image)
 
 image_cleaner = CleanImageData()
-resized_path:str ="/home/danny/git/FBMarketplaceRanking/data/resized_images/"
+resized_path:str ="/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/"
 img_id_list = image_cleaner.create_img_id_list()
 for img_id in img_id_list:
     image = image_cleaner.open_image(img_id)

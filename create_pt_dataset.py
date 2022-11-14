@@ -1,8 +1,10 @@
 import pandas as pd
-import PIL
 import torch
 from torch.utils.data import Dataset, DataLoader
+from PIL import Image
+from PIL import ImageFile
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class CreateImageDataset(Dataset):
     """
@@ -18,6 +20,7 @@ class CreateImageDataset(Dataset):
         self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
         self.labels = self.prods_imgs['category'].to_list()
         self.num_classes = len(set(self.labels))
+        self.image_id = self.prods_imgs['image_id']
         self.encoder = {y: x for (x, y) in enumerate(set(self.labels))}
         self.decoder = {x: y for (x, y) in enumerate(set(self.labels))}
 
@@ -28,11 +31,8 @@ class CreateImageDataset(Dataset):
         label = self.labels[idx]
         label = self.encoder[label]
         label = torch.as_tensor(label)
-        item = self.prods_imgs.iloc[idx]
-        features = item[4]
-        #features = self.encoder[label]
-        #features = torch.as_tensor(features)
-        return (features, label)
+        image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/'+ self.image_id +'.jpg')
+        return (image, label)
 
     def __len__(self):
         """
