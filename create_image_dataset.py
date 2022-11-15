@@ -1,4 +1,5 @@
 import pandas as pd
+import pickle
 import torch
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
@@ -61,9 +62,12 @@ class CreateImageDataset(Dataset):
         category = cat1.replace(',','')
         return category
         
-
+with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
+    data = pickle.load(f)
+print(data)
 dataset = CreateImageDataset()
 print(len(dataset))
+print(dataset.num_classes)
 #print(dataset[1061])
 print(dataset.__getitem__(1061))
 
