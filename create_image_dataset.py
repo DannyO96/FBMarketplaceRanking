@@ -32,7 +32,7 @@ class CreateImageDataset(Dataset):
         label = self.labels[idx]
         label = self.encoder[label]
         label = torch.as_tensor(label)
-        image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/'+ self.image_id +'.jpg')
+        image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/' + self.image_id + '.jpg')
         return (image, label)
 
     def __len__(self):
@@ -61,14 +61,21 @@ class CreateImageDataset(Dataset):
         cat1 = cat.replace('/','')
         category = cat1.replace(',','')
         return category
-        
+
+    def split_train_test(dataset, train_percentage):
+        train_split = int(len(dataset) * train_percentage)
+        train_dataset, validation_dataset = torch.utils.data.random_split(
+            dataset, [train_split, len(dataset) - train_split]
+        ) 
+
+
 with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
     data = pickle.load(f)
 print(data)
 dataset = CreateImageDataset()
 print(len(dataset))
 print(dataset.num_classes)
-#print(dataset[1061])
+print(dataset[1061])
 print(dataset.__getitem__(1061))
 
 """
