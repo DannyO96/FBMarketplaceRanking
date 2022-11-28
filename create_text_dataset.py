@@ -21,3 +21,8 @@ class TextDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.labels)
+
+dataset = TextDataset()
+print(len(dataset))
+print(dataset.num_classes)
+print(dataset[1000])

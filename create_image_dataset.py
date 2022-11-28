@@ -1,11 +1,12 @@
 import pandas as pd
 import pickle
 import torch
+import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from PIL import ImageFile
 
-ImageFile.LOAD_TRUNCATED_IMAGES = True
+#ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class CreateImageDataset(Dataset):
     """
@@ -21,9 +22,10 @@ class CreateImageDataset(Dataset):
         self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
         self.labels = self.prods_imgs['category'].to_list()
         self.num_classes = len(set(self.labels))
-        self.image_id = self.prods_imgs['image_id']
+        self.image_id = self.prods_imgs['image_id'].values[0]
         self.encoder = {y: x for (x, y) in enumerate(set(self.labels))}
         self.decoder = {x: y for (x, y) in enumerate(set(self.labels))}
+        self.transform = transforms.Compose([transforms.ToTensor()])
 
     def __getitem__(self, idx):
         """
@@ -32,8 +34,9 @@ class CreateImageDataset(Dataset):
         label = self.labels[idx]
         label = self.encoder[label]
         label = torch.as_tensor(label)
-        image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/' + self.image_id + '.jpg')
-        return (image, label)
+        image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/' + self.image_id + '_resized.jpg')
+        image_tensor = self.transform(image)
+        return (image_tensor, label)
 
     def __len__(self):
         """
@@ -63,15 +66,23 @@ class CreateImageDataset(Dataset):
         return category
 
     def split_train_test(dataset, train_percentage):
+        """
+        Funtioon to split the dataset into a training dataset for training the model and a validation dataset for validating the models ability to predict the
+        categories of images
+        Args: dataset
+            : train_percentage
+        Returns: train_dataset
+               : validation_dataset
+        """
         train_split = int(len(dataset) * train_percentage)
         train_dataset, validation_dataset = torch.utils.data.random_split(
             dataset, [train_split, len(dataset) - train_split]
         ) 
+        return train_dataset, validation_dataset
 
-
-with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
-    data = pickle.load(f)
-print(data)
+#with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
+#    data = pickle.load(f)
+#print(data)
 dataset = CreateImageDataset()
 print(len(dataset))
 print(dataset.num_classes)
