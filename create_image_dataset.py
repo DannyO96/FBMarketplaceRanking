@@ -44,6 +44,7 @@ class CreateImageDataset(Dataset):
         """
         return len(self.prods_imgs)
 
+    @staticmethod
     def merge(self):
         """
         Funtion to merge the Images.csv and the Products.csv to a single dataframe which is then saved as prods_imgs.csv
@@ -52,6 +53,7 @@ class CreateImageDataset(Dataset):
         prds_imgs.to_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv')
         print(prds_imgs)
 
+    @staticmethod
     def get_category_clean(self, idx):
         """
         Function to obtain the category of an index position in the pros_imgs.csv
@@ -80,15 +82,14 @@ class CreateImageDataset(Dataset):
         ) 
         return train_dataset, validation_dataset
 
-#with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
-#    data = pickle.load(f)
-#print(data)
+with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
+    data = pickle.load(f)
+print(data)
 dataset = CreateImageDataset()
 print(len(dataset))
 print(dataset.num_classes)
 print(dataset[1061])
-print(dataset.__getitem__(1061))
-
+dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=1)
 """
 code to use cuda later....
 def get_default_device():
