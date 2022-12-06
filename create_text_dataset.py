@@ -2,7 +2,8 @@ import torch
 import pandas as pd
 
 class TextDataset(torch.utils.data.Dataset):
-    """"
+    """
+    This class prepares the text dataset it inherits from torch.utils.dataset 
     """
     def __init__(self):
         self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
@@ -13,6 +14,9 @@ class TextDataset(torch.utils.data.Dataset):
         self.decoder = {x: y for (x, y) in enumerate(set(self.labels))}
 
     def __getitem__(self, index):
+        """
+        Overwrites the built in python __getitem__ function and defines what is done to the dataset when an index is referenced.
+        """
         label = self.labels[index]
         label = self.encoder[label]
         #label = torch.as_tensor(label)
@@ -20,6 +24,9 @@ class TextDataset(torch.utils.data.Dataset):
         return description, label
 
     def __len__(self):
+        """
+        Overwrites the built in python __len__ function and defines what is done to the dataset when the len funtion is called.
+        """
         return len(self.labels)
 
 dataset = TextDataset()

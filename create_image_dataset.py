@@ -85,7 +85,7 @@ class CreateImageDataset(Dataset):
 with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
     data = pickle.load(f)
 print(data)
-dataset = CreateImageDataset()
+dataset = CreateImageDataset() 
 print(len(dataset))
 print(dataset.num_classes)
 print(dataset[1061])
