@@ -2,7 +2,7 @@ import torch
 from create_image_dataset import CreateImageDataset
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-
+from tqdm import tqdm
 
 
 dataset = CreateImageDataset()
@@ -26,8 +26,8 @@ class ImageClassifier(torch.nn.Module):
         super(ImageClassifier, self).__init__()
         self.ngpu = ngpu
         self.resnet50 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
-        output_features = self.resnet50.fc.output_features
-        self.linear = torch.nn.Linear(output_features, num_classes).to(device)
+        out_features = self.resnet50.fc.out_features
+        self.linear = torch.nn.Linear(out_features, num_classes).to(device)
         self.main = torch.nn.Sequential(self.resnet50, self.linear).to(device)
 
 
@@ -39,6 +39,14 @@ model_cnn = ImageClassifier(ngpu=ngpu, num_classes=num_classes)
 print(model_cnn.resnet50)
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model_cnn.parameters(), lr=lr)
+losses = []
 
-for epoch in epochs:
-    pass
+for epoch in range(epochs):
+    for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
+        data = data.to(device)
+        lables = labels.to(device)
+        optimizer.zero_grad()
+        outputs = model_cnn(data)
+        loss = criterion(outputs, labels)
+        
+        pass
