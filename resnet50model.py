@@ -6,12 +6,12 @@ from tqdm import tqdm
 
 
 dataset = CreateImageDataset()
-ngpu = 2
+ngpu = 1
 epochs = 1
-batch_size = 32
+batch_size = 8
 lr = 0.001
 num_classes = dataset.num_classes
-dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True,num_workers=1)
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True,num_workers=1 )
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -42,11 +42,22 @@ optimizer = torch.optim.Adam(model_cnn.parameters(), lr=lr)
 losses = []
 
 for epoch in range(epochs):
+    histogram_accuracy = []
+    accuracy = 0
     for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
         data = data.to(device)
         lables = labels.to(device)
         optimizer.zero_grad()
         outputs = model_cnn(data)
         loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        accuracy = torch.sum(torch.argmax(outputs, dim = 1)==labels).item()/len(labels)
+        histogram_accuracy.append(accuracy)
+        losses.append(loss.item())
+        tqdm(enumerate(dataloader), total = len(dataloader)).set_description(f'epoch = {epoch + 1}/{epochs}. Acc = {round(torch.sum(torch.argmax(outputs, dim=1) == labels).item()/len(labels), 2)}, Losses = {round(loss.item(), 2)}')
+        print(f"Epoch: {epoch} | Batch: {i} | Loss: {loss.item()}")
+        print('-'*20)
+        print(f"Accuracy: {torch.sum(torch.argmax(outputs, dim=1) == labels).item()/len(labels)}")
+        print('-'*20)
         
-        pass
