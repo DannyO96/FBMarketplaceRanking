@@ -16,15 +16,31 @@ class ImageClassifier(torch.nn.Module):
         self.resnet50 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
         out_features = self.resnet50.fc.out_features
         self.linear = torch.nn.Linear(out_features, num_classes).to(device)
-        self.main = torch.nn.Sequential(self.resnet50,torch.nn.ReLU(), self.linear).to(device)
+        self.main = torch.nn.Sequential(
+            self.resnet50,
+            torch.nn.ReLU(), 
+            self.linear
+            ).to(device)
 
 
     def forward(self, X):
+        """
+        Function to compute output tensors from input tensors
+        Args: self 
+            : X
+        Returns: X
+        """
         X = self.main(X)#return prediction
         return X
 
 def train(model, epochs = 10):
-
+    """
+    Function to map the training loop for the model
+    Args: model 
+        : epochs
+    Returns: not yet but will return trained model
+        
+    """
     print(model.resnet50)
     batch_idx = 0
     lr = 0.001
