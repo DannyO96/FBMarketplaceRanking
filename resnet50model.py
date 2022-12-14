@@ -33,7 +33,7 @@ class ImageClassifier(torch.nn.Module):
         X = self.main(X)#return prediction
         return X
 
-def train(model, epochs = 10):
+def train(model, epochs = 3):
     """
     Function to map the training loop for the model
     Args: model 
