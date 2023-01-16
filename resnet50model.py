@@ -1,3 +1,4 @@
+import pickle
 import torch
 from create_image_dataset import CreateImageDataset
 from torch.utils.data import DataLoader
@@ -70,9 +71,14 @@ def train(model, epochs = 3):
             print('-'*20)
             writer.add_scalar('Loss', l.item(), batch_idx)
             
+    writer.add_scalars('Losses', losses)
+    torch.save(model.state_dict(), 'resnet50.pt')
+    with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
+        pickle.dump(dataset.decoder, f)
+
 if __name__ == '__main__':
     dataset = CreateImageDataset()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
     model = ImageClassifier(device, num_classes = dataset.num_classes)
     train(model)
