@@ -34,7 +34,7 @@ class ImageClassifier(torch.nn.Module):
         X = self.main(X)#return prediction
         return X
 
-def train(model, epochs = 3):
+def train(model, epochs = 1):
     """
     Function to map the training loop for the model
     Args: model 
@@ -55,7 +55,7 @@ def train(model, epochs = 3):
         accuracy = 0
         for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
             data = data.to(device)
-            labels = labels.to(device)
+            labels = labels.to(device)   
             optimizer.zero_grad()
             outputs = model(data)
             l = loss(outputs, labels)
@@ -70,8 +70,8 @@ def train(model, epochs = 3):
             print(f"Accuracy: {accuracy}")
             print('-'*20)
             writer.add_scalar('Loss', l.item(), batch_idx)
-            
-    writer.add_scalars('Losses', losses)
+
+    writer.add_scalar('Losses', losses, batch_idx)
     torch.save(model.state_dict(), 'resnet50.pt')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)

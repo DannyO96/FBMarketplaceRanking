@@ -1,5 +1,6 @@
 import pandas as pd
 import pickle
+import re
 import torch
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
@@ -21,17 +22,26 @@ class CreateImageDataset(Dataset):
         self.link_data = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/Links.csv')
         self.prods_imgs = pd.read_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv',  lineterminator='\n')
         self.labels = self.prods_imgs['category'].to_list()
-        self.num_classes = len(set(self.labels))
+        self.primary_labels=[]
+        for label in self.labels:
+            l=str(label)
+            self.primary_labels.append(l.strip().split("/")[0])
+        '''
+        cl=()
+        for catlist in self.labels:
+            for cats in re.split("/",catlist)
+                cl{cats:"cats"}'''
+        self.num_classes = len(set(self.primary_labels))
         self.image_id = self.prods_imgs['image_id'].values[0]
-        self.encoder = {y: x for (x, y) in enumerate(set(self.labels))}
-        self.decoder = {x: y for (x, y) in enumerate(set(self.labels))}
+        self.encoder = {y: x for (x, y) in enumerate(set(self.primary_labels))}
+        self.decoder = {x: y for (x, y) in enumerate(set(self.primary_labels))}
         self.transform = transforms.Compose([transforms.ToTensor()])
 
     def __getitem__(self, idx):
         """
         Overwrites the built in python __getitem__ function and defines what is done to the dataset when an index is referenced.
         """
-        label = self.labels[idx]
+        label = self.primary_labels[idx]
         label = self.encoder[label]
         label = torch.as_tensor(label)
         image = Image.open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/resized_images/' + self.image_id + '_resized.jpg')
@@ -82,25 +92,32 @@ class CreateImageDataset(Dataset):
 
 
 dataset = CreateImageDataset()
-print(dataset[0][0])
-print(dataset.decoder[int(dataset[0][1])])
+print(dataset.num_classes)
+#print(dataset[0][0])
+#print(dataset.decoder[int(dataset[0][1])])
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=1)
 for i, (data, labels) in enumerate(dataloader):
-    print(data)
+    #print(data)
+    #print(labels)
     print(labels)
     print(data.size())
     if i == 0:
         break
+
 """
 with open('/home/danny/git/FBMarketplaceRanking/my.secrets.data/image_decoder.pkl','rb') as f:
     data = pickle.load(f)
 print(data)
 
+        cl=()
+        for catlist in self.labels:
+            for cats in re.split("/",catlist)
+                cl{cats:"cats"}
+
 print(len(dataset))
 print(dataset.num_classes)
 print(dataset[1061])
 print(dataset.get_category_clean(10))
-
 code to use cuda later....
 def get_default_device():
     
