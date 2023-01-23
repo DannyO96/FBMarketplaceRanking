@@ -17,9 +17,11 @@ class ImageClassifier(torch.nn.Module):
         self.resnet50 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
         out_features = self.resnet50.fc.out_features
         self.linear = torch.nn.Linear(out_features, num_classes).to(device)
+        self.regularisation = torch.nn.Dropout(p=0.5, inplace=False)
         self.main = torch.nn.Sequential(
             self.resnet50,
-            torch.nn.ReLU(), 
+            torch.nn.ReLU(),
+            self.regularisation, 
             self.linear
             ).to(device)
 
@@ -72,7 +74,7 @@ def train(model, epochs = 1):
             writer.add_scalar('Loss', l.item(), batch_idx)
 
     writer.add_scalar('Losses', losses)
-    torch.save(model.state_dict(), 'resnet50.pt')
+    torch.save(model.state_dict(), 'model_evaluation/weights')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)
 
