@@ -72,8 +72,8 @@ def train(model, epochs = 1):
             print(f"Accuracy: {accuracy}")
             print('-'*20)
             writer.add_scalar('Loss', l.item(), batch_idx)
-
-    writer.add_scalar('Losses', losses)
+            writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
+    #writer.add_scalar('Losses', losses)
     torch.save(model.state_dict(), 'model_evaluation/weights')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)

@@ -61,19 +61,20 @@ class CreateImageDataset(Dataset):
         prds_imgs = self.product_data.merge(self.image_data, left_on='id', right_on='product_id').rename(columns={'id_y': 'image_id'}).drop('id_x', axis=1)
         prds_imgs.to_csv('/home/danny/git/FBMarketplaceRanking/my.secrets.data/prods_imgs.csv')
         print(prds_imgs)
-
+    '''
     def get_category_clean(self, idx):
-        """
+        
         Function to obtain the category of an index position in the pros_imgs.csv
         Args: self
             : index
         Returns: Category -> str with / and , removed
-        """
+        
         item = self.prods_imgs.iloc[idx]
         cat = item[3]
         cat1 = cat.replace('/','')
         category = cat1.replace(',','')
         return category
+    '''
 
     def split_train_test(dataset, train_percentage):
         """
