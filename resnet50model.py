@@ -55,6 +55,8 @@ def train(model, epochs = 1):
     for epoch in range(epochs):
         histogram_accuracy = []
         accuracy = 0
+        total_loss = 0
+        total_correct = 0
         for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
             data = data.to(device)
             labels = labels.to(device)   
@@ -71,8 +73,9 @@ def train(model, epochs = 1):
             print('-'*20)
             print(f"Accuracy: {accuracy}")
             print('-'*20)
-            writer.add_scalar('Loss', l.item(), batch_idx)
-            writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
+            total_loss += l.item()
+            writer.add_scalar('Loss', total_loss, batch_idx)
+            #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
     #writer.add_scalar('Losses', losses)
     torch.save(model.state_dict(), 'model_evaluation/weights')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
