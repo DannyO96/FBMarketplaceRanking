@@ -25,7 +25,6 @@ class ImageClassifier(torch.nn.Module):
             self.linear
             ).to(device)
 
-
     def forward(self, X):
         """
         Function to compute output tensors from input tensors
@@ -47,40 +46,57 @@ def train(model, epochs = 1):
     print(model.resnet50)
     batch_idx = 0
     lr = 0.00001
-    loss = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr==lr)
-    losses = []
     writer = SummaryWriter()
     
     for epoch in range(epochs):
-        histogram_accuracy = []
+        #losses = []
+        #histogram_accuracy = []
         accuracy = 0
         total_loss = 0
         total_correct = 0
+
         for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
             data = data.to(device)
             labels = labels.to(device)   
-            optimizer.zero_grad()
+            
             outputs = model(data)
-            l = loss(outputs, labels)
-            l.backward()
+            loss = criterion(outputs, labels)
+            total_loss+= loss.item()
+            total_correct+= outputs.argmax(dim=1).eq(labels).sum().item()
+            total_loss += loss.item()
+
+            optimizer.zero_grad()
+            loss.backward()
             optimizer.step()
+            
             accuracy = torch.sum(torch.argmax(outputs, dim = 1)==labels).item()/len(labels)
-            histogram_accuracy.append(accuracy)
-            losses.append(l.item())
-            tqdm(enumerate(dataloader), total = len(dataloader)).set_description(f'epoch = {epoch + 1}/{epochs}. Acc = {round(accuracy, 2)}, Losses = {round(l.item(), 2)}')
-            print(f"Epoch: {epoch} Batch: {i} Loss: {l.item()}")
+
+            #histogram_accuracy.append(accuracy)
+            #losses.append(loss.item())
+            tqdm(enumerate(dataloader), total = len(dataloader)).set_description(f'epoch = {epoch + 1}/{epochs}. Acc = {round(accuracy, 2)}, Losses = {round(loss.item(), 2)}')
+            
+            print(f"Epoch: {epoch} Batch: {i} Loss: {loss.item()}")
             print('-'*20)
             print(f"Accuracy: {accuracy}")
             print('-'*20)
-            total_loss += l.item()
-            writer.add_scalar('Loss', total_loss, batch_idx)
+            print(f"Total number of Correct Guesses: {total_correct}")
+            print('-'*20)
+            
+            #accuracy = total_correct/ len(train_set)
+
+            writer.add_scalar("Accuracy",accuracy, epoch)
+            writer.add_scalar('Loss', total_loss, epoch)
+            writer.add_scalar("Correct", total_correct, epoch)
             #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
-    #writer.add_scalar('Losses', losses)
+            #writer.add_scalar('Losses', losses)
+
     torch.save(model.state_dict(), 'model_evaluation/weights')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)
 
+    ##RuntimeError: File model_evaluation/weights cannot be opened. error message 08/02Added
 if __name__ == '__main__':
     dataset = CreateImageDataset()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
