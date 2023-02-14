@@ -65,7 +65,7 @@ def train(model, epochs = 1):
             loss = criterion(outputs, labels)
             total_loss+= loss.item()
             total_correct+= outputs.argmax(dim=1).eq(labels).sum().item()
-            total_loss += loss.item()
+            
 
             optimizer.zero_grad()
             loss.backward()
@@ -85,12 +85,12 @@ def train(model, epochs = 1):
             print('-'*20)
             
             #accuracy = total_correct/ len(train_set)
-
+            writer.add_scalar('Loss', loss.item(), batch_idx)
             writer.add_scalar("Accuracy",accuracy, epoch)
-            writer.add_scalar('Loss', total_loss, epoch)
+            writer.add_scalar('Total Loss', total_loss, epoch)
             writer.add_scalar("Correct", total_correct, epoch)
             #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
-            #writer.add_scalar('Losses', losses)
+            
 
     torch.save(model.state_dict(), 'model_evaluation/weights.pth')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
