@@ -89,6 +89,8 @@ def train(model, epochs = 1):
             writer.add_scalar("Accuracy",accuracy, epoch)
             writer.add_scalar('Total Loss', total_loss, epoch)
             writer.add_scalar("Correct", total_correct, epoch)
+            writer.add_graph('Loss', loss.item(), batch_idx)
+            writer.add_graph('Accuracy', accuracy, batch_idx)
             #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
             
 
