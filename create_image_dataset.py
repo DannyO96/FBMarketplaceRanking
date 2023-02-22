@@ -96,7 +96,7 @@ dataset = CreateImageDataset()
 print(dataset.num_classes)
 #print(dataset[0][0])
 #print(dataset.decoder[int(dataset[0][1])])
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=1)
+dataloader = DataLoader(dataset, num_workers=1)
 for i, (data, labels) in enumerate(dataloader):
     #print(data)
     #print(labels)

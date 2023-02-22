@@ -1,6 +1,7 @@
 import pickle
 import torch
 from create_image_dataset import CreateImageDataset
+from itertools import product
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
@@ -35,7 +36,7 @@ class ImageClassifier(torch.nn.Module):
         X = self.main(X)#return prediction
         return X
 
-def train(model, epochs = 1):
+def train(model, epochs = 5):
     """
     Function to map the training loop for the model
     Args: model = model used to predict the category of images specified in self.main of the init
@@ -43,57 +44,74 @@ def train(model, epochs = 1):
     Returns: not yet but will return trained model
         
     """
+    #Hyperparameters
     print(model.resnet50)
-    batch_idx = 0
-    lr = 0.00001
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr==lr)
-    writer = SummaryWriter()
+    parameters = dict(
+        lr = [0.01, 0.001],
+        batch_size = [16,32,64],
+        shuffle = [True, False]
+        )
+    param_values = [v for v in parameters.values()]
     
-    for epoch in range(epochs):
-        #losses = []
-        #histogram_accuracy = []
-        accuracy = 0
-        total_loss = 0
-        total_correct = 0
 
-        for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
-            data = data.to(device)
-            labels = labels.to(device)   
-            
-            outputs = model(data)
-            loss = criterion(outputs, labels)
-            total_loss+= loss.item()
-            total_correct+= outputs.argmax(dim=1).eq(labels).sum().item()
-            
+    for run_id, (lr,batch_size,shuffle) in enumerate(product(*param_values)):
+        print("run id:", run_id+1)
+        dataset = CreateImageDataset()
+        dataloader = DataLoader(dataset, batch_size=batch_size,shuffle=shuffle)
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            accuracy = torch.sum(torch.argmax(outputs, dim = 1)==labels).item()/len(labels)
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(model.parameters(), lr==lr)
+        comment = f' batch_size = {batch_size} lr = {lr} shuffle = {shuffle}'
+        writer = SummaryWriter(comment=comment)
+        for epoch in range(epochs):
+            #losses = []
+            #histogram_accuracy = []
+            accuracy = 0
+            total_loss = 0
+            total_correct = 0
 
-            #histogram_accuracy.append(accuracy)
-            #losses.append(loss.item())
-            tqdm(enumerate(dataloader), total = len(dataloader)).set_description(f'epoch = {epoch + 1}/{epochs}. Acc = {round(accuracy, 2)}, Losses = {round(loss.item(), 2)}')
-            
-            print(f"Epoch: {epoch} Batch: {i} Loss: {loss.item()}")
-            print('-'*20)
-            print(f"Accuracy: {accuracy}")
-            print('-'*20)
-            print(f"Total number of Correct Guesses: {total_correct}")
-            print('-'*20)
-            
+            for i, (data, labels) in tqdm(enumerate(dataloader), total = len(dataloader)):
+                data = data.to(device)
+                labels = labels.to(device)   
+                
+                outputs = model(data)
+                loss = criterion(outputs, labels)
+                total_loss+= loss.item()
+                total_correct+= outputs.argmax(dim=1).eq(labels).sum().item()
+                
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                accuracy = torch.sum(torch.argmax(outputs, dim = 1)==labels).item()/len(labels)
+
+                #histogram_accuracy.append(accuracy)
+                #losses.append(loss.item())
+                tqdm(enumerate(dataloader), total = len(dataloader)).set_description(f'epoch = {epoch + 1}/{epochs}. Acc = {round(accuracy, 2)}, Losses = {round(loss.item(), 2)}')
+                
+                print(f"Epoch: {epoch} Batch: {i} Loss: {loss.item()}")
+                print('-'*20)
+                print(f"Accuracy: {accuracy}")
+                print('-'*20)
+                print(f"Total number of Correct Guesses: {total_correct}")
+                print('-'*20)
+                
             #accuracy = total_correct/ len(train_set)
-            writer.add_scalar('Loss', loss.item(), batch_idx)
+            #writer.add_scalar('Loss', loss.item(), batch_idx)
             writer.add_scalar("Accuracy",accuracy, epoch)
             writer.add_scalar('Total Loss', total_loss, epoch)
             writer.add_scalar("Correct", total_correct, epoch)
-            writer.add_graph('Loss', loss.item(), batch_idx)
-            writer.add_graph('Accuracy', accuracy, batch_idx)
-            #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
+            #writer.add_graph('Loss', loss.item(), batch_idx)
+            #writer.add_graph('Accuracy', accuracy, batch_idx)
+                #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
             
-
+    writer.add_hparams(
+            {"lr": lr, "bsize": batch_size, "shuffle":shuffle},
+            {
+                "accuracy": accuracy,
+                "loss": total_loss,
+            },
+        )
     torch.save(model.state_dict(), 'model_evaluation/weights.pth')
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)
@@ -102,6 +120,6 @@ def train(model, epochs = 1):
 if __name__ == '__main__':
     dataset = CreateImageDataset()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
+    #dataloader = DataLoader(dataset)
     model = ImageClassifier(device, num_classes = dataset.num_classes)
     train(model)
