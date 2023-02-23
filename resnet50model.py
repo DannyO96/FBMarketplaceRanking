@@ -48,7 +48,7 @@ def train(model, epochs = 5):
     print(model.resnet50)
     parameters = dict(
         lr = [0.01, 0.001],
-        batch_size = [16,32,64],
+        batch_size = [8,16,32],
         shuffle = [True, False]
         )
     param_values = [v for v in parameters.values()]
@@ -103,7 +103,7 @@ def train(model, epochs = 5):
             writer.add_scalar("Correct", total_correct, epoch)
             #writer.add_graph('Loss', loss.item(), batch_idx)
             #writer.add_graph('Accuracy', accuracy, batch_idx)
-                #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
+            #writer.add_scalar('Accuracy', accuracy.item(), batch_idx)
             
     writer.add_hparams(
             {"lr": lr, "bsize": batch_size, "shuffle":shuffle},
