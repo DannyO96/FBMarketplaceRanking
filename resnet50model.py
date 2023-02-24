@@ -9,9 +9,10 @@ from tqdm import tqdm
 
 class ImageClassifier(torch.nn.Module):
     """
-    This class inherits from torch.nn.module and is the image classification neural network it uses the resnet 50 pretrained nueral network from pytorch
-    with some linear layers added to make it specific for the image classification of the classes of my images from the facebook marketplace. And of course an
-    activation function to prevent linearity.
+    This class inherits from torch.nn.module and is the image classification neural network.
+    It uses the ResNet50 pre-trained neural network from PyTorch and adds linear layers 
+    to make it specific for the image classification of the classes of my images from the Facebook Marketplace. 
+    An activation function is also added to prevent linearity.
     """
     def __init__(self, device, num_classes):
         super(ImageClassifier, self).__init__()
@@ -29,19 +30,23 @@ class ImageClassifier(torch.nn.Module):
     def forward(self, X):
         """
         Function to compute output tensors from input tensors
-        Args: self 
-            : X
-        Returns: X
+        Args: 
+            X: input tensor
+        Returns: 
+            X: output tensor
         """
         X = self.main(X)#return prediction
         return X
 
 def train(model, epochs = 5):
     """
-    Function to map the training loop for the model
-    Args: model = model used to predict the category of images specified in self.main of the init
-        : epochs = total number of iterations of all the training data in one cycle for training
-    Returns: not yet but will return trained model
+    This function trains a given model for a certain number of epochs using different combinations of hyperparameters. 
+    It also logs the accuracy and loss metrics for each epoch using Tensorboard's SummaryWriter.
+    Args: 
+        model: model used to predict the category of images specified in self.main of the init
+        epochs: total number of iterations of all the training data in one cycle for training
+    Returns: 
+        trained model
         
     """
     #Hyperparameters
@@ -56,13 +61,13 @@ def train(model, epochs = 5):
 
     for run_id, (lr,batch_size,shuffle) in enumerate(product(*param_values)):
         print("run id:", run_id+1)
-        dataset = CreateImageDataset()
+        dataset = CreateImageDataset() #create dataset object
         dataloader = DataLoader(dataset, batch_size=batch_size,shuffle=shuffle)
 
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss() #define loss function
         optimizer = torch.optim.Adam(model.parameters(), lr==lr)
         comment = f' batch_size = {batch_size} lr = {lr} shuffle = {shuffle}'
-        writer = SummaryWriter(comment=comment)
+        writer = SummaryWriter(comment=comment) #create summary writer object to log metrics on tensorboard
         for epoch in range(epochs):
             #losses = []
             #histogram_accuracy = []
@@ -116,7 +121,7 @@ def train(model, epochs = 5):
     with open('my.secrets.data/image_decoder.pkl', 'wb') as f:
         pickle.dump(dataset.decoder, f)
 
-    ##RuntimeError: File model_evaluation/weights cannot be opened. error message 08/02Added
+
 if __name__ == '__main__':
     dataset = CreateImageDataset()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
