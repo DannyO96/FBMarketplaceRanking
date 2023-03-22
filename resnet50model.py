@@ -38,7 +38,7 @@ class ImageClassifier(torch.nn.Module):
         X = self.main(X)#return prediction
         return X
 
-def train(model, epochs = 5):
+def train(model, epochs = 2):
     """
     This function trains a given model for a certain number of epochs using different combinations of hyperparameters. 
     It also logs the accuracy and loss metrics for each epoch using Tensorboard's SummaryWriter.
@@ -49,11 +49,16 @@ def train(model, epochs = 5):
         trained model
         
     """
-    #Hyperparameters
+    
     print(model.resnet50)
+    #Code to unfreeze last two layers of resnet 50
+    for name, param in model.resnet50.named_parameters():
+        if 'layer4' in name or 'fc' in name:
+            param.requires_grad = True
+    #Hyperparameters
     parameters = dict(
         lr = [0.01, 0.001],
-        batch_size = [8,16,32],
+        batch_size = [16,32],
         shuffle = [True, False]
         )
     param_values = [v for v in parameters.values()]
