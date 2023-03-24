@@ -58,7 +58,7 @@ def train(model, epochs = 2):
     #Hyperparameters
     parameters = dict(
         lr = [0.01, 0.001],
-        batch_size = [16,32],
+        batch_size = [4,8,16],
         shuffle = [True, False]
         )
     param_values = [v for v in parameters.values()]
